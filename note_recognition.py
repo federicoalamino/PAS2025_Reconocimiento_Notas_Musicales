@@ -15,7 +15,7 @@ from utils import (
 )
 
 
-def main(file, note_file=None, note_starts_file=None, plot_starts=False, plot_fft_indices=[]):
+def melody_recognition(file, note_file=None, note_starts_file=None, plot_starts=False, plot_fft_indices=[]):
     # If a note file and/or actual start times are supplied read them in
     actual_starts = []
     if note_starts_file:
@@ -46,6 +46,36 @@ def main(file, note_file=None, note_starts_file=None, plot_starts=False, plot_ff
     if actual_notes:
         lev_distance = calculate_distance(predicted_notes, actual_notes)
         print("Levenshtein distance: {}/{}".format(lev_distance, len(actual_notes)))
+
+
+def chord_recognition(file, note_file=None, note_starts_file=None, plot_starts=False, plot_fft_indices=[]):
+    song = AudioSegment.from_file(file)
+    
+    # Size of segments to break song into for volume calculations
+    # SEGMENT_MS = 50
+    # dBFS is decibels relative to the maximum possible loudness
+    # volume = [segment.dBFS for segment in song[::SEGMENT_MS]]
+    # x_axis = np.arange(len(volume)) * (SEGMENT_MS / 1000)
+    # plt.plot(x_axis, volume)
+    # plt.show()
+
+    # song = song.high_pass_filter(80, order=4)
+    # x_axis = np.arange(len(volume)) * (SEGMENT_MS / 1000)
+    # volume2 = [segment.dBFS for segment in song[::SEGMENT_MS]]
+    # plt.plot(x_axis, volume2)
+    # plt.show()
+
+    predicted_notes = []
+    # FFT
+    freq_array, freq_magnitudes = frequency_spectrum(song)
+    # plt.plot(freq_array, freq_magnitudes, 'b')
+    # plt.show()
+
+    predicted = classify_note_attempt_3(freq_array, freq_magnitudes)
+    predicted_notes.append(predicted or "U")
+    print("Predicted: {}".format(predicted))
+    # print("PREDICTED NOTES", predict_notes)
+
 
 
 # Very simple implementation, just requires a minimum volume and looks for left edges by
@@ -156,11 +186,23 @@ if __name__ == "__main__":
         nargs="*",
         help="Index of detected note to plot graph of FFT for",
     )
+    parser.add_argument("--chord-recognition", action="store_true")
     args = parser.parse_args()
-    main(
-        args.file,
-        note_file=args.note_file,
-        note_starts_file=args.note_starts_file,
-        plot_starts=args.plot_starts,
-        plot_fft_indices=(args.plot_fft_index or []),
-    )
+
+
+    if not args.chord_recognition:
+        melody_recognition(
+            args.file,
+            note_file=args.note_file,
+            note_starts_file=args.note_starts_file,
+            plot_starts=args.plot_starts,
+            plot_fft_indices=(args.plot_fft_index or []),
+        )
+    else:
+        chord_recognition(
+            args.file,
+            note_file=args.note_file,
+            note_starts_file=args.note_starts_file,
+            plot_starts=args.plot_starts,
+            plot_fft_indices=(args.plot_fft_index or []),
+        )
