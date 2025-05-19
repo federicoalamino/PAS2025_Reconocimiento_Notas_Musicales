@@ -4,7 +4,9 @@ from pydub import AudioSegment
 import pydub.scipy_effects
 import numpy as np
 import scipy
+from scipy.signal import find_peaks
 import matplotlib.pyplot as plt
+from itertools import combinations
 
 from utils import (
     frequency_spectrum,
@@ -12,6 +14,12 @@ from utils import (
     classify_note_attempt_1,
     classify_note_attempt_2,
     classify_note_attempt_3,
+    get_note_for_freq,
+    agregar_nota_y_peso,
+    imprimir_notas_peso,
+    obtener_combinaciones,
+    posibles_acordes,
+    obtener_lista_nota_peso_usando
 )
 
 
@@ -47,34 +55,29 @@ def melody_recognition(file, note_file=None, note_starts_file=None, plot_starts=
         lev_distance = calculate_distance(predicted_notes, actual_notes)
         print("Levenshtein distance: {}/{}".format(lev_distance, len(actual_notes)))
 
+def generarPosibleAcordeConPeso(elem):
+    peso = 0
+    posibleAcorde = []
+    for x,y in elem:
+        peso += y
+        posibleAcorde.append(x)
+
+    return (posibleAcorde, peso)
+
 
 def chord_recognition(file, note_file=None, note_starts_file=None, plot_starts=False, plot_fft_indices=[]):
     song = AudioSegment.from_file(file)
-    
-    # Size of segments to break song into for volume calculations
-    # SEGMENT_MS = 50
-    # dBFS is decibels relative to the maximum possible loudness
-    # volume = [segment.dBFS for segment in song[::SEGMENT_MS]]
-    # x_axis = np.arange(len(volume)) * (SEGMENT_MS / 1000)
-    # plt.plot(x_axis, volume)
-    # plt.show()
 
-    # song = song.high_pass_filter(80, order=4)
-    # x_axis = np.arange(len(volume)) * (SEGMENT_MS / 1000)
-    # volume2 = [segment.dBFS for segment in song[::SEGMENT_MS]]
-    # plt.plot(x_axis, volume2)
-    # plt.show()
-
-    predicted_notes = []
-    # FFT
     freq_array, freq_magnitudes = frequency_spectrum(song)
-    # plt.plot(freq_array, freq_magnitudes, 'b')
-    # plt.show()
+    peaksIdx, _ = find_peaks(freq_magnitudes, distance=150)
 
-    predicted = classify_note_attempt_3(freq_array, freq_magnitudes)
-    predicted_notes.append(predicted or "U")
-    print("Predicted: {}".format(predicted))
-    # print("PREDICTED NOTES", predict_notes)
+    lista_nota_peso = obtener_lista_nota_peso_usando(freq_array, freq_magnitudes, peaksIdx)
+
+    for nota_peso in lista_nota_peso:
+        agregar_nota_y_peso(nota_peso)
+
+    combinaciones = obtener_combinaciones()
+    print(posibles_acordes(combinaciones))
 
 
 

@@ -5,6 +5,7 @@ import numpy as np
 from scipy.fft import fft
 from pydub.utils import get_array_type
 from Levenshtein import distance
+from itertools import combinations
 
 NOTES = {
     "A": 440,
@@ -19,6 +20,48 @@ NOTES = {
     "F#": 739.9888454232688,
     "G": 783.9908719634985,
     "G#": 830.6093951598903,
+}
+
+NOTAS_PESO = {
+    "A": 0,
+    "A#": 0,
+    "B": 0,
+    "C": 0,
+    "C#": 0,
+    "D": 0,
+    "D#": 0,
+    "E": 0,
+    "F": 0,
+    "F#": 0,
+    "G": 0,
+    "G#": 0,
+}
+
+CHORDS = {
+    "CMajor":   ["C",  "E",  "G"],
+    "C#Major":  ["C#", "F",  "G#"],
+    "DMajor":   ["D",  "F#", "A"],
+    "D#Major":  ["D#", "G",  "A#"],
+    "EMajor":   ["E",  "G#", "B"],
+    "FMajor":   ["F",  "A",  "C"],
+    "F#Major":  ["F#", "A#", "C#"],
+    "GMajor":   ["G",  "B",  "D"],
+    "G#Major":  ["G#", "C",  "D#"],
+    "AMajor":   ["A",  "C#", "E"],
+    "A#Major":  ["A#", "D",  "F"],
+    "BMajor":   ["B",  "D#", "F#"],
+    "Cminor":   ["C",  "D#", "G"],
+    "C#minor":  ["C#", "E",  "G#"],
+    "Dminor":   ["D",  "F",  "A"],
+    "D#minor":  ["D#", "F#", "A#"],
+    "Eminor":   ["E",  "G",  "B"],
+    "Fminor":   ["F",  "G#", "C"],
+    "F#minor":  ["F#", "A",  "C#"],
+    "Gminor":   ["G",  "A#", "D"],
+    "G#minor":  ["G#", "B",  "D#"],
+    "Aminor":   ["A",  "C",  "E"],
+    "A#minor":  ["A#", "C#", "F"],
+    "Bminor":   ["B",  "D",  "F#"]
 }
 
 
@@ -136,3 +179,57 @@ def calculate_distance(predicted, actual):
     return distance(
         "".join([transform(n) for n in predicted]), "".join([transform(n) for n in actual]),
     )
+
+
+def obtener_lista_nota_peso_usando(freq_array, freq_magnitudes, peaksIdx):
+    tuplas_nota_magnitud = []
+    for x,y in zip(freq_array[peaksIdx], freq_magnitudes[peaksIdx]):
+        tuplas_nota_magnitud.append((get_note_for_freq(x),y))
+
+    tuplas_nota_magnitud_ordenado_por_magnitud = sorted(tuplas_nota_magnitud, key=lambda x: x[1])
+    tuplas_nota_peso_ordenada = [ (tuplas_nota_magnitud_ordenado_por_magnitud[x][0], x) for x in range(len(tuplas_nota_magnitud_ordenado_por_magnitud))]
+
+    # Devolvemos la mitad con peso mayor para sacarnos las frecuencias mas bajas
+    return [x for x in tuplas_nota_peso_ordenada[(len(tuplas_nota_peso_ordenada)//2):]]
+
+def agregar_nota_y_peso(nota_y_peso):
+    nota = nota_y_peso[0]
+    peso = nota_y_peso[1]
+    
+    if nota == None:
+        return
+    
+    NOTAS_PESO[nota] = NOTAS_PESO[nota] + peso
+
+def imprimir_notas_peso():
+    print(NOTAS_PESO)
+
+def obtener_combinaciones():
+    notas_usadas = []
+    for nota, peso in NOTAS_PESO.items():
+        if peso > 0:
+            notas_usadas.append(nota)
+    
+    return list(combinations(notas_usadas, 3))
+
+def posibles_acordes(combinaciones):
+    acordes = {}
+    for combinacion in combinaciones:
+        acorde = acorde_de(combinacion)
+        if acorde != None:
+            acordes[acorde] = (combinacion, peso_total_de(combinacion))
+    
+    return acordes
+
+def acorde_de(combinacion):
+    combinacion_ordenada = sorted(combinacion)
+    for acorde, notas in CHORDS.items():
+        if sorted(notas) == combinacion_ordenada:
+            return acorde
+    return None
+
+def peso_total_de(combinacion):
+    total = 0
+    for nota in combinacion:
+        total += NOTAS_PESO[nota]
+    return total
