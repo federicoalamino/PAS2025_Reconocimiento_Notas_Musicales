@@ -1,26 +1,15 @@
 import argparse
 
 from pydub import AudioSegment
-import pydub.scipy_effects
+import pydub.scipy_effects # Necesitado para high_pass_filter
 import numpy as np
 import scipy
-from scipy.signal import find_peaks
 import matplotlib.pyplot as plt
-from itertools import combinations
 
 from utils import (
     frequency_spectrum,
     calculate_distance,
-    classify_note_attempt_1,
-    classify_note_attempt_2,
     classify_note_attempt_3,
-    get_note_for_freq,
-    agregar_nota_y_peso,
-    imprimir_notas_peso,
-    obtener_combinaciones,
-    posibles_acordes,
-    obtener_lista_nota_peso_usando,
-    mostrar_posibles_ordenados
 )
 
 
@@ -55,31 +44,6 @@ def melody_recognition(file, note_file=None, note_starts_file=None, plot_starts=
     if actual_notes:
         lev_distance = calculate_distance(predicted_notes, actual_notes)
         print("Levenshtein distance: {}/{}".format(lev_distance, len(actual_notes)))
-
-def generarPosibleAcordeConPeso(elem):
-    peso = 0
-    posibleAcorde = []
-    for x,y in elem:
-        peso += y
-        posibleAcorde.append(x)
-
-    return (posibleAcorde, peso)
-
-
-def chord_recognition(file, note_file=None, note_starts_file=None, plot_starts=False, plot_fft_indices=[]):
-    song = AudioSegment.from_file(file)
-
-    freq_array, freq_magnitudes = frequency_spectrum(song)
-    peaksIdx, _ = find_peaks(freq_magnitudes, distance=150)
-
-    lista_nota_peso = obtener_lista_nota_peso_usando(freq_array, freq_magnitudes, peaksIdx)
-
-    for nota_peso in lista_nota_peso:
-        agregar_nota_y_peso(nota_peso)
-
-    combinaciones = obtener_combinaciones()
-    mostrar_posibles_ordenados(posibles_acordes(combinaciones))
-
 
 
 # Very simple implementation, just requires a minimum volume and looks for left edges by
@@ -190,23 +154,11 @@ if __name__ == "__main__":
         nargs="*",
         help="Index of detected note to plot graph of FFT for",
     )
-    parser.add_argument("--chord-recognition", action="store_true")
     args = parser.parse_args()
-
-
-    if not args.chord_recognition:
-        melody_recognition(
-            args.file,
-            note_file=args.note_file,
-            note_starts_file=args.note_starts_file,
-            plot_starts=args.plot_starts,
-            plot_fft_indices=(args.plot_fft_index or []),
-        )
-    else:
-        chord_recognition(
-            args.file,
-            note_file=args.note_file,
-            note_starts_file=args.note_starts_file,
-            plot_starts=args.plot_starts,
-            plot_fft_indices=(args.plot_fft_index or []),
-        )
+    melody_recognition(
+        args.file,
+        note_file=args.note_file,
+        note_starts_file=args.note_starts_file,
+        plot_starts=args.plot_starts,
+        plot_fft_indices=(args.plot_fft_index or []),
+    )
