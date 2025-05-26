@@ -19,7 +19,8 @@ from utils import (
     imprimir_notas_peso,
     obtener_combinaciones,
     posibles_acordes,
-    obtener_lista_nota_peso_usando
+    obtener_lista_nota_peso_usando,
+    mostrar_posibles_ordenados
 )
 
 
@@ -77,7 +78,7 @@ def chord_recognition(file, note_file=None, note_starts_file=None, plot_starts=F
         agregar_nota_y_peso(nota_peso)
 
     combinaciones = obtener_combinaciones()
-    print(posibles_acordes(combinaciones))
+    mostrar_posibles_ordenados(posibles_acordes(combinaciones))
 
 
 

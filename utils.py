@@ -189,8 +189,11 @@ def obtener_lista_nota_peso_usando(freq_array, freq_magnitudes, peaksIdx):
     tuplas_nota_magnitud_ordenado_por_magnitud = sorted(tuplas_nota_magnitud, key=lambda x: x[1])
     tuplas_nota_peso_ordenada = [ (tuplas_nota_magnitud_ordenado_por_magnitud[x][0], x) for x in range(len(tuplas_nota_magnitud_ordenado_por_magnitud))]
 
+    # print(tuplas_nota_peso_ordenada)
+
     # Devolvemos la mitad con peso mayor para sacarnos las frecuencias mas bajas
-    return [x for x in tuplas_nota_peso_ordenada[(len(tuplas_nota_peso_ordenada)//2):]]
+    # return [x for x in tuplas_nota_peso_ordenada[(len(tuplas_nota_peso_ordenada)//2):]]
+    return tuplas_nota_peso_ordenada
 
 def agregar_nota_y_peso(nota_y_peso):
     nota = nota_y_peso[0]
@@ -218,7 +221,6 @@ def posibles_acordes(combinaciones):
         acorde = acorde_de(combinacion)
         if acorde != None:
             acordes[acorde] = (combinacion, peso_total_de(combinacion))
-    
     return acordes
 
 def acorde_de(combinacion):
@@ -233,3 +235,33 @@ def peso_total_de(combinacion):
     for nota in combinacion:
         total += NOTAS_PESO[nota]
     return total
+
+def mostrar_posibles_ordenados(dicAcordes):
+    maxProb = 0
+    acorde_max_prob = {}
+    for key,val in dicAcordes.items():
+        if val[1] > maxProb:
+            maxProb = val[1]
+            acorde_max_prob = (key, val[0])
+    
+    hastaProb = maxProb // 2
+    otros_posibles = []
+    for key,val in dicAcordes.items():
+        if val[1] > hastaProb and val[1] != maxProb:
+            otros_posibles.append((key, val))
+    otros_posibles = sorted(otros_posibles, key=lambda x: x[1][1], reverse=True)
+    
+    imprimir_en_verde(f"Acorde Predicho: {acorde_max_prob[0]} ({acorde_max_prob[1][0]} {acorde_max_prob[1][1]} {acorde_max_prob[1][2]})")
+    
+    if len(otros_posibles) > 0:
+        imprimir_en_amarillo("Otros posibles en orden de probabilidad")
+        for acorde in otros_posibles:
+            imprimir_en_amarillo(f"{acorde[0]} ({acorde[1][0][0]} {acorde[1][0][1]} {acorde[1][0][2]}) {acorde[1][1]}")
+    else:
+        imprimir_en_amarillo("No se predijeron mas acordes")
+
+def imprimir_en_verde(texto):
+    print('\033[102m' + texto + '\033[0m')
+
+def imprimir_en_amarillo(texto):
+    print('\033[93m' + texto + '\033[0m')
