@@ -4,8 +4,14 @@ from pydub import AudioSegment
 from scipy.signal import find_peaks
 import matplotlib.pyplot as plt
 from itertools import combinations
-import numpy as np
 from pathlib import Path
+
+from plot_utils import (
+    plot_audio,
+    plot_fft,
+    plot_picos,
+    plot_nota_peso
+)
 
 from utils import (
     frequency_spectrum,
@@ -137,49 +143,6 @@ def imprimir_en_verde(texto):
 
 def imprimir_en_amarillo(texto):
     print('\33[93m' + texto + '\33[0m')
-
-def plot_audio(song, prefix='./acorde/01'):
-    # Size of segments to break song into for volume calculations
-    SEGMENT_MS = 50
-    # dBFS is decibels relative to the maximum possible loudness
-    volume = [segment.dBFS for segment in song[::SEGMENT_MS]]
-    x_axis = np.arange(len(volume)) * (SEGMENT_MS / 1000)
-    plt.plot(x_axis, volume)
-    plt.savefig(f'{prefix}) audio.png')
-    plt.close()
-
-def plot_fft(freq_array, freq_magnitude, prefix='./acorde/02'):
-    plt.plot(freq_array, freq_magnitude, 'b')
-    plt.savefig(f'{prefix}) fft.png')
-    plt.close()
-
-def plot_picos(freq_array, freq_magnitude, peaksIdx, prefix='./acorde/03'):
-    plt.plot(freq_array, freq_magnitude, 'b')
-
-    for s in freq_array[peaksIdx]:
-        plt.axvline(x=s, color='r', linewidth=0.5, linestyle="-")
-
-    plt.savefig(f'{prefix}) fft-con-picos.png')
-    plt.close()
-
-def plot_nota_peso(lista_nota_peso, prefix='./acorde/04'):
-    notas = list(set([x[0] for x in lista_nota_peso]))
-    y = []
-
-    for nota in notas:
-        peso = 0
-        for nota_peso in lista_nota_peso:
-            if nota == nota_peso[0]:
-                peso += nota_peso[1]
-        y.append(peso)
-
-    for i in range(len(notas)):
-        if notas[i] == None:
-            notas[i] = "No reconocido"
-
-    plt.pie(y, labels=notas)
-    plt.savefig(f'{prefix}) nota-peso.png')
-    plt.close()
 
 def reconocer_acorde(file):
     song = AudioSegment.from_file(file)
