@@ -127,13 +127,13 @@ def mostrar_posibles_ordenados(dicAcordes):
     otros_posibles = sorted(otros_posibles, key=lambda x: x[1][1], reverse=True)
     
     print("\n")
-    imprimir_en_verde(f"Acorde Predicho: {acorde_max_prob[0]} ({acorde_max_prob[1][0]} {acorde_max_prob[1][1]} {acorde_max_prob[1][2]})")
+    imprimir_en_verde(f"Acorde Predicho: {acorde_max_prob[0]} ({acorde_max_prob[1][0]} {acorde_max_prob[1][1]} {acorde_max_prob[1][2]}); peso: {maxProb}")
     print("\n")
 
     if len(otros_posibles) > 0:
         imprimir_en_amarillo("Otros posibles en orden de probabilidad")
         for acorde in otros_posibles:
-            imprimir_en_amarillo(f"{acorde[0]} ({acorde[1][0][0]} {acorde[1][0][1]} {acorde[1][0][2]}) {acorde[1][1]}")
+            imprimir_en_amarillo(f"{acorde[0]} ({acorde[1][0][0]} {acorde[1][0][1]} {acorde[1][0][2]}); peso: {acorde[1][1]}")
     else:
         imprimir_en_amarillo("No se predijeron mas acordes")
 

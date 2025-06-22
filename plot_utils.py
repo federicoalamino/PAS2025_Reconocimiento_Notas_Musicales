@@ -8,6 +8,8 @@ def plot_audio(song, segment_ms=50, prefix='./acorde/01'):
     volume = [segment.dBFS for segment in song[::SEGMENT_MS]]
     x_axis = np.arange(len(volume)) * (SEGMENT_MS / 1000)
     plt.plot(x_axis, volume)
+    plt.xlabel("Tiempo (ms)")
+    plt.ylabel("Volumen")
     plt.savefig(f'{prefix}) audio.png')
     plt.close()
 
@@ -18,6 +20,9 @@ def plot_audio_filtrado_con_picos(volume, starts, segment_ms=10, prefix='./melod
     # Se agrega cada pico como una linea vertical
     for s in starts:
         plt.axvline(x=(s / 1000), color="r", linewidth=0.5, linestyle="-")
+    
+    plt.xlabel("Tiempo (ms)")
+    plt.ylabel("Volumen")
 
     plt.savefig(f'{prefix}) filtrado-con-picos.png')
     plt.close()
@@ -25,6 +30,8 @@ def plot_audio_filtrado_con_picos(volume, starts, segment_ms=10, prefix='./melod
 
 def plot_fft(freq_array, freq_magnitude, prefix='./acorde/02'):
     plt.plot(freq_array, freq_magnitude, 'b')
+    plt.xlabel("Frecuencia (Hz)")
+    plt.ylabel("Volumen")
     plt.savefig(f'{prefix}) fft.png')
     plt.close()
 
@@ -33,6 +40,9 @@ def plot_picos(freq_array, freq_magnitude, peaksIdx, prefix='./acorde/03'):
 
     for s in freq_array[peaksIdx]:
         plt.axvline(x=s, color='r', linewidth=0.5, linestyle="-")
+    
+    plt.xlabel("Frecuencia (Hz)")
+    plt.ylabel("Volumen")
 
     plt.savefig(f'{prefix}) fft-con-picos.png')
     plt.close()
@@ -52,6 +62,6 @@ def plot_nota_peso(lista_nota_peso, prefix='./acorde/04'):
         if notas[i] == None:
             notas[i] = "No reconocido"
 
-    plt.pie(y, labels=notas)
+    plt.pie(y, labels=notas, autopct='%.0f%%')
     plt.savefig(f'{prefix}) nota-peso.png')
     plt.close()
