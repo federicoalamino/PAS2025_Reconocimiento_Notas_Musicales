@@ -2,9 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def plot_audio(song, segment_ms=50, prefix='./acorde/01'):
-    # Size of segments to break song into for volume calculations
     SEGMENT_MS = segment_ms
-    # dBFS is decibels relative to the maximum possible loudness
     volume = [segment.dBFS for segment in song[::SEGMENT_MS]]
     x_axis = np.arange(len(volume)) * (SEGMENT_MS / 1000)
     plt.plot(x_axis, volume)

@@ -15,7 +15,7 @@ from plot_utils import (
 
 from utils import (
     frequency_spectrum,
-    get_note_for_freq
+    obtener_la_nota_de_la_frecuencia
 )
 
 NOTAS_PESO = {
@@ -63,7 +63,7 @@ CHORDS = {
 def obtener_lista_nota_peso_usando(freq_array, freq_magnitudes, peaksIdx):
     tuplas_nota_magnitud = []
     for x,y in zip(freq_array[peaksIdx], freq_magnitudes[peaksIdx]):
-        tuplas_nota_magnitud.append((get_note_for_freq(x),y))
+        tuplas_nota_magnitud.append((obtener_la_nota_de_la_frecuencia(x),y))
 
     tuplas_nota_magnitud_ordenado_por_magnitud = sorted(tuplas_nota_magnitud, key=lambda x: x[1])
     tuplas_nota_peso_ordenada = [ (tuplas_nota_magnitud_ordenado_por_magnitud[x][0], x) for x in range(len(tuplas_nota_magnitud_ordenado_por_magnitud))]
